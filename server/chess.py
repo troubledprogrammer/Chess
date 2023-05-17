@@ -14,37 +14,76 @@ PIECES = {
 
 class Square:
     def __init__(self, pos=0, piece=None):
+        """
+        Creates a square object that holds a position and piece
+        :param pos: int
+        :param piece: Piece
+        """
         self.index = pos
         self.piece = piece
 
     @staticmethod
     def algebraicToIndex(an):
+        """
+        Converts from algebraic notation to an index
+        :param an: str
+        :return: int
+        """
         c = LETTERS.index(an[0])
         r = NUMBERS[::-1].index(an[1])
         return 8*r + c
 
     @staticmethod
     def indexToAlgebraic(i):
+        """
+        Converts from an index to algebraic notation
+        :param i: int
+        :return: str
+        """
         c, r = Square.indexToCoordinate(i)
         return LETTERS[c]+NUMBERS[::-1][r]
 
     @staticmethod
     def indexToCoordinate(i):
+        """
+        Converts from an index to a (col, row) coordinate
+        :param i: int
+        :return: (int, int)
+        """
         return i%8, i // 8
 
     @staticmethod
     def coordinateToIndex(square):
+        """
+        Converts from a (col, row) coordinate to an index
+        :param square: (int, int)
+        :return: int
+        """
         c, r = square
         return c + r*8
 
     def hasPiece(self):
+        """
+        Checks if square holds a piece
+        :return: bool
+        """
         return self.piece != None
 
     def hasAllyPiece(self, colour):
+        """
+        Checks if square holds a piece of the same colour specified
+        :param colour: int
+        :return: bool
+        """
         if not self.hasPiece(): return False
         return self.piece.colour == colour
 
     def hasEnemyPiece(self, colour):
+        """
+        Checks if square holds a piece of the opposite colour specified
+        :param colour: int
+        :return: bool
+        """
         if not self.hasPiece(): return False
         return self.piece.colour != colour
 
@@ -59,6 +98,10 @@ class Square:
 
 class Piece:
     def __init__(self, printable):
+        """
+        Creates a piece from a char
+        :param printable: str
+        """
         self.colour = 1
         if printable.islower(): self.colour = -1
         self.type = printable.lower()
@@ -70,6 +113,13 @@ class Piece:
         return PIECES[self.type][self.colour]
 
     def isAttacking(self, board, cur_pos, target_pos):
+        """
+        Checks if a piece is attacking a square
+        :param board: Board
+        :param cur_pos: int
+        :param target_pos: int
+        :return: bool
+        """
         if self.type == "p" and self.colour == 1:
             if cur_pos - target_pos == 7 or cur_pos - target_pos == 9:
                 if board.board[target_pos].hasEnemyPiece(self.colour):
@@ -141,6 +191,13 @@ class Piece:
         return False
 
     def canMove(self, board, cur_pos, target_pos):
+        """
+        Checks if making a move is legal
+        :param board: Board
+        :param cur_pos: int
+        :param target_pos: int
+        :return: bool
+        """
         if board.turn != self.colour:
             #c = ["", "White", "Black"][board.turn]
             #print(f"{self} cannot move because it is {c}s turn")
@@ -174,6 +231,11 @@ class Piece:
 
 class Move:
     def __init__(self, start_pos, target_pos):
+        """
+        Creates an instance of a move holding a start and end pos
+        :param start_pos: int
+        :param target_pos: int
+        """
         self.current_pos = start_pos
         self.target_pos = target_pos
 
@@ -186,6 +248,11 @@ class Move:
         return m.current_pos == self.current_pos and m.target_pos == self.target_pos
 
     def isValid(self, board):
+        """
+        Checks if move is legal
+        :param board: Board
+        :return: bool
+        """
         #print(board.board[self.current_pos].piece)
         if not board.board[self.current_pos].hasPiece:
             return False
@@ -202,6 +269,9 @@ class Move:
 
 class Board:
     def __init__(self):
+        """
+        Creates an instance of the game
+        """
         self.board = [Square()] * 64 # empty board
         self.turn = 1 # 1: white, -1: black
         self.castling = [False] * 4
@@ -212,6 +282,11 @@ class Board:
         self.loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 
     def loadFEN(self, fen_to_load):
+        """
+        Loads a FEN notation onto the board
+        :param fen_to_load: str
+        :return: None
+        """
         fen_string = fen_to_load.split(" ")
         # pieces
         pieces = []
@@ -259,6 +334,11 @@ class Board:
         return t
 
     def makeMove(self, move):
+        """
+        Makes a move on the board
+        :param move: Move
+        :return: None
+        """
 
         p = self.board[move.current_pos].piece
 
@@ -319,6 +399,11 @@ class Board:
                 self.board[move.target_pos].piece = Piece("q")
 
     def isGameOver(self):
+        # TODO fix so only one return type
+        """
+        Checks if game has ended
+        :return: int or bool
+        """
         if len(self.getLegalMoves()) == 0:
             if self.isCheck(self.turn):
                 return self.turn
@@ -327,6 +412,10 @@ class Board:
         return False
 
     def getLegalMoves(self):
+        """
+        Gets an array of all legal moves
+        :return: Moves[]
+        """
         moves = []
         for square in self.board:
             if square.hasPiece():
@@ -337,6 +426,11 @@ class Board:
         return moves
 
     def isCheck(self, colour):
+        """
+        Checks if specified colour's king is in check
+        :param colour: int
+        :return: bool
+        """
         king_pos = None
         for square in self.board:
             if square.hasPiece():
