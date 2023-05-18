@@ -1,11 +1,11 @@
 import pygame as pg
 from chess import Square, Move
 
+
 class HeldPiece:
     def __init__(self, index, display, img):
         self.index = index
 
-        
         self.display = display
         self.image = img
         self.rect = self.image.get_rect()
@@ -17,20 +17,20 @@ class HeldPiece:
 
 class Window:
     def __init__(self, board, colour):
-        #window
+        # window
         pg.init()
         pg.display.init()
         self.display = pg.display.set_mode((800, 800))
         pg.display.set_caption("chess")
 
-        #textures
-        self.board_image = pg.image.load("assets/board/wood/board.png")
+        # textures
+        self.board_image = pg.image.load(".../assets/board/wood/board.png")
         self.board_image = pg.transform.smoothscale(self.board_image, (800, 800))
         self.piece_images = {}
         for c in "pnbrqk":
-            w = pg.image.load(f"assets/pieces/default/w{c}.png")
+            w = pg.image.load(f".../assets/pieces/default/w{c}.png")
             w = pg.transform.smoothscale(w, (100, 100))
-            b = pg.image.load(f"assets/pieces/default/b{c}.png")
+            b = pg.image.load(f".../assets/pieces/default/b{c}.png")
             b = pg.transform.smoothscale(b, (100, 100))
             self.piece_images[c] = ["", w, b]
 
@@ -45,21 +45,21 @@ class Window:
         self.selected = None
 
         # move
-        self.move_queue = []    
+        self.move_queue = []
 
     def drawPieces(self):
         for square in self.game.board:
             if square.hasPiece():
                 if self.selected == None or square.index != self.selected.index:
                     i = square.index
-                    if self.colour == -1: i = 63-i
+                    if self.colour == -1: i = 63 - i
                     pos = Square.indexToCoordinate(i)
                     img = self.piece_images[square.piece.type][square.piece.colour]
-                    self.display.blit(img, (pos[0]*100, pos[1]*100))
+                    self.display.blit(img, (pos[0] * 100, pos[1] * 100))
 
     def onLeftMouseDown(self):
         x, y = pg.mouse.get_pos()
-        index = Square.coordinateToIndex((x//100, y//100))
+        index = Square.coordinateToIndex((x // 100, y // 100))
         if self.colour == -1: index = 63 - index
         s = self.game.board[index]
         if s.hasPiece():
@@ -68,7 +68,7 @@ class Window:
     def onLeftMouseUp(self):
         if self.selected != None and self.game.board[self.selected.index].piece.colour == self.colour:
             x, y = pg.mouse.get_pos()
-            index = Square.coordinateToIndex((x//100, y//100))
+            index = Square.coordinateToIndex((x // 100, y // 100))
             if self.colour == -1: index = 63 - index
             self.move_queue.append(Move(self.selected.index, index))
         self.selected = None
@@ -94,7 +94,7 @@ class Window:
         return False
 
     def update(self):
-        
+
         # render
         self.display.fill((0, 0, 0))
         self.display.blit(self.board_image, (0, 0))
@@ -119,11 +119,11 @@ if __name__ == "__main__":
     c = pg.time.Clock()
     p1 = Window(b, 1)
     p2 = ComputerRandom(b, -1)
-    
+
     outcome = False
 
     while outcome == False:
-            
+
         if p1.update():
             break
         p2.update()
@@ -132,11 +132,10 @@ if __name__ == "__main__":
         if pturn.move_queue != []:
             if pturn.move_queue[0].isValid(b):
                 b.makeMove(pturn.move_queue.pop(0))
-                outcome = b.isGameOver()
+                outcome = b.getWinState()
             else:
                 pturn.move_queue = []
 
         c.tick(60)
 
     print(outcome)
-         

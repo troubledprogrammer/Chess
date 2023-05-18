@@ -25,7 +25,7 @@ def run(colour):
         if pturn.move_queue != []:
             if pturn.move_queue[0].isValid(b):
                 b.makeMove(pturn.move_queue.pop(0))
-                outcome = b.isGameOver()
+                outcome = b.getWinState()
             else:
                 pturn.move_queue = []
 

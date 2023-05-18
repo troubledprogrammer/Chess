@@ -1,4 +1,5 @@
 from copy import deepcopy
+from random import randint
 
 LETTERS = "abcdefgh"
 NUMBERS = "12345678"
@@ -10,6 +11,8 @@ PIECES = {
     "q": ["", "\u2655", "\u265B"],
     "k": ["", "\u2654", "\u265A"],
 }
+WHITE = 1
+BLACK = -1
 
 
 class Square:
@@ -102,8 +105,8 @@ class Piece:
         Creates a piece from a char
         :param printable: str
         """
-        self.colour = 1
-        if printable.islower(): self.colour = -1
+        self.colour = WHITE
+        if printable.islower(): self.colour = BLACK
         self.type = printable.lower()
 
         self.printable = printable
@@ -120,11 +123,11 @@ class Piece:
         :param target_pos: int
         :return: bool
         """
-        if self.type == "p" and self.colour == 1:
+        if self.type == "p" and self.colour == WHITE:
             if cur_pos - target_pos == 7 or cur_pos - target_pos == 9:
                 if board.board[target_pos].hasEnemyPiece(self.colour):
                     return True
-        if self.type == "p" and self.colour == -1:
+        if self.type == "p" and self.colour == BLACK:
             if cur_pos - target_pos == -7 or cur_pos - target_pos == -9:
                 if board.board[target_pos].hasEnemyPiece(self.colour):
                     return True
@@ -209,7 +212,7 @@ class Piece:
             # c = ["", "White", "Black"][board.turn]
             # print(f"{self} cannot move because it is {c}s turn")
             return False
-        if self.type == "p" and self.colour == 1:
+        if self.type == "p" and self.colour == WHITE:
             if cur_pos - target_pos == 8:
                 if not board.board[target_pos].hasPiece():
                     return True
@@ -221,7 +224,7 @@ class Piece:
                     return True
                 elif board.en_passant.index == target_pos:
                     return True
-        if self.type == "p" and self.colour == -1:
+        if self.type == "p" and self.colour == BLACK:
             if cur_pos - target_pos == -8:
                 if not board.board[target_pos].hasPiece():
                     return True
@@ -249,10 +252,10 @@ class Move:
     def __str__(self):
         return f"{Square.indexToAlgebraic(self.current_pos)} > {Square.indexToAlgebraic(self.target_pos)}"
 
-    def __eq__(self, m):
-        if not isinstance(m, Move):
-            raise TypeError("Comparing and instace of Move to a differnet object.")
-        return m.current_pos == self.current_pos and m.target_pos == self.target_pos
+    def __eq__(self, move):
+        if not isinstance(move, Move):
+            raise TypeError("Comparing and instance of Move to a different object.")
+        return move.current_pos == self.current_pos and move.target_pos == self.target_pos
 
     def isValid(self, board):
         """
@@ -261,9 +264,13 @@ class Move:
         :return: bool
         """
         # print(board.board[self.current_pos].piece)
-        if not board.board[self.current_pos].hasPiece:
-            return False
-        if not board.board[self.current_pos].piece.canMove(board, self.current_pos, self.target_pos):
+        try:
+            if not board.board[self.current_pos].hasPiece:
+                return False
+            if not board.board[self.current_pos].piece.canMove(board, self.current_pos, self.target_pos):
+                return False
+        except AttributeError:
+            print("Tried to move a piece that didn't exist")
             return False
         c = board.clone()
         c.makeMove(self)
@@ -275,18 +282,18 @@ class Move:
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, fen="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"):
         """
         Creates an instance of the game
         """
         self.board = [Square()] * 64  # empty board
-        self.turn = 1  # 1: white, -1: black
+        self.turn = WHITE  # 1: white, -1: black
         self.castling = [False] * 4
         self.en_passant = Square(-1)  # no en passant square
         self.fifty_move_timer = 0  # counts to 100 halfmoves
         self.moves = 0
 
-        self.loadFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+        self.loadFEN(fen)
 
     def loadFEN(self, fen_to_load):
         """
@@ -369,17 +376,17 @@ class Board:
 
         # castling
         if p.type == "k":
-            if p.colour == 1:
+            if p.colour == WHITE:
                 self.castling[0] = False
                 self.castling[1] = False
-            if p.colour == -1:
+            if p.colour == BLACK:
                 self.castling[2] = False
                 self.castling[3] = False
         if p.type == "r":
-            if p.colour == 1:
+            if p.colour == WHITE:
                 if move.current_pos == 63: self.castling[0] = False
                 if move.current_pos == 56: self.castling[1] = False
-            if p.colour == -1:
+            if p.colour == BLACK:
                 if move.current_pos == 7: self.castling[2] = False
                 if move.current_pos == 0: self.castling[3] = False
         if p.type == "k" and abs(move.current_pos - move.target_pos) == 2:
@@ -408,23 +415,22 @@ class Board:
 
         # TODO promotion
         if p.type == "p":
-            if p.colour == 1 and Square.indexToCoordinate(move.target_pos)[1] == 0:
+            if p.colour == WHITE and Square.indexToCoordinate(move.target_pos)[1] == 0:
                 self.board[move.target_pos].piece = Piece("Q")
-            if p.colour == -1 and Square.indexToCoordinate(move.target_pos)[1] == 7:
+            if p.colour == BLACK and Square.indexToCoordinate(move.target_pos)[1] == 7:
                 self.board[move.target_pos].piece = Piece("q")
 
-    def isGameOver(self):
-        # TODO fix so only one return type
+    def getWinState(self):
         """
-        Checks if game has ended
-        :return: int or bool
+        Checks if game has ended (2 for not ended else result)
+        :return: Int
         """
         if len(self.getLegalMoves()) == 0:
             if self.isCheck(self.turn):
                 return self.turn
             else:
                 return 0
-        return False
+        return 2
 
     def getLegalMoves(self):
         """
@@ -434,8 +440,8 @@ class Board:
         moves = []
         for square in self.board:
             if square.hasPiece():
-                for sqaure_target in self.board:
-                    move = Move(square.index, sqaure_target.index)
+                for square_target in self.board:
+                    move = Move(square.index, square_target.index)
                     if move.isValid(self):
                         moves.append(move)
         return moves
@@ -462,22 +468,115 @@ class Board:
         return deepcopy(self)
 
 
-if __name__ == '__main__':
-    board = Board()
-    result = False
+class Player:
+    def __init__(self, name):
+        self.name = name
+        self.board = None
+        self.move_queue = []
 
-    while result == False:
-        print(board)
-        print(board.turn)
+    def setBoard(self, board):
+        self.board = board
+
+    def getName(self):
+        return self.name
+
+    def addMove(self, move):
+        """
+        Adds a move to the move queue
+        :param move: str
+        :return: None
+        """
+        start, end = move.split(",")
+        start, end = Square.algebraicToIndex(start), Square.algebraicToIndex(end)
+        self.move_queue.append(Move(start, end))
+
+    def getMove(self):
+        """
+        Gets the first move in the queue if it is legal otherwise it clears the move queue
+        :return: Move or None
+        """
+        if len(self.move_queue) == 0: return None
+        else:
+            move = self.move_queue.pop(0)
+            if move.isValid(self.board):
+                return move
+            else:
+                self.move_queue = []
+                return None
+
+
+class Game:
+    def __init__(self, players):
+        """
+        Starts a game with given players
+        :param players: Player[]
+        """
+        self.board = Board()
+        self.w = players.pop(randint(0, 1))
+        self.b = players.pop()
+        self.w.setBoard(self.board)
+        self.b.setBoard(self.board)
+
+    def updateMove(self):
+        """
+        Called every time a player adds a move to their queue or a move is played
+        :return: None
+        """
+        moved = False
+        if self.board.turn == 1:
+            move = self.w.getMove()
+        else: move = self.b.getMove()
+        if move is not None:
+            self.makeMove(move)
+            moved = True
+            result = self.board.getWinState()
+            if result != 2:
+                self.endGame(result)
+        if moved:
+            self.updateMove()
+
+    def makeMove(self, move):
+        """
+        Makes move on the board and sends back the board state to each player
+        :param move: Move
+        :return: None
+        """
+        self.board.makeMove(move)
+        print(f"[MOVED] Made move {move}")
+        # TODO send move to each player
+
+    def endGame(self, result):
+        """
+        Ends the game and sends results to players
+        :param result:
+        :return:
+        """
+        print("Game ended with result:", result)
+        print(self.board)
+
+
+if __name__ == '__main__':
+    b = Board()
+    r = 2
+
+    while r == 2:
+        print(b)
+        print(b.turn)
 
         m = input("--> ").split(" ")
-        move = Move(Square.algebraicToIndex(m[0]), Square.algebraicToIndex(m[1]))
+        mv = Move(Square.algebraicToIndex(m[0]), Square.algebraicToIndex(m[1]))
 
-        if move.isValid(board):
-            print(board.makeMove(move))
-            result = board.isGameOver()
+        if mv.isValid(b):
+            print(b.makeMove(mv))
+            r = b.getWinState()
 
         else:
-            print(f"{move} is not valid")
+            print(f"{mv} is not valid")
 
-    print(result)
+    print(r)
+
+if __name__ == "__main__":
+    p1 = Player("t1")
+    p2 = Player("t2")
+    game = Game([p1, p2])
+
