@@ -23,9 +23,9 @@ def run(colour):
         pturn = p1
         if p1.colour != b.turn: pturn = p2
         if pturn.move_queue != []:
-            if pturn.move_queue[0].isValid(b):
-                b.makeMove(pturn.move_queue.pop(0))
-                outcome = b.getWinState()
+            if pturn.move_queue[0].is_valid(b):
+                b.make_move(pturn.move_queue.pop(0))
+                outcome = b.get_win_state()
             else:
                 pturn.move_queue = []
 

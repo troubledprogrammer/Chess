@@ -4,7 +4,7 @@ File containing the board section of the window
 import pygame as pg
 from constants import *
 
-def fenToPos(fen):
+def fen_to_pos(fen):
     rows = fen.split(" ")[0].split("/")
     res = []
     for row in rows:
@@ -38,7 +38,7 @@ class Board:
             self.piece_images[c] = b
 
         # position data
-        self.position = fenToPos(position)
+        self.position = fen_to_pos(position)
 
     def update(self, events):
         pass

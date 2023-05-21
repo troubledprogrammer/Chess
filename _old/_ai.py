@@ -14,4 +14,4 @@ class ComputerRandom(Computer):
     
     def update(self):
         if self.game.turn == self.colour:
-            self.move_queue.append(choice(self.game.getLegalMoves()))
+            self.move_queue.append(choice(self.game.get_legal_moves()))

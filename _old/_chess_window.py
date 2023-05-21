@@ -49,26 +49,26 @@ class Window:
 
     def drawPieces(self):
         for square in self.game.board:
-            if square.hasPiece():
+            if square.has_piece():
                 if self.selected == None or square.index != self.selected.index:
                     i = square.index
                     if self.colour == -1: i = 63 - i
-                    pos = Square.indexToCoordinate(i)
+                    pos = Square.index_to_coordinate(i)
                     img = self.piece_images[square.piece.type][square.piece.colour]
                     self.display.blit(img, (pos[0] * 100, pos[1] * 100))
 
     def onLeftMouseDown(self):
         x, y = pg.mouse.get_pos()
-        index = Square.coordinateToIndex((x // 100, y // 100))
+        index = Square.coordinate_to_index((x // 100, y // 100))
         if self.colour == -1: index = 63 - index
         s = self.game.board[index]
-        if s.hasPiece():
+        if s.has_piece():
             self.selected = HeldPiece(index, self.display, self.piece_images[s.piece.type][s.piece.colour])
 
     def onLeftMouseUp(self):
         if self.selected != None and self.game.board[self.selected.index].piece.colour == self.colour:
             x, y = pg.mouse.get_pos()
-            index = Square.coordinateToIndex((x // 100, y // 100))
+            index = Square.coordinate_to_index((x // 100, y // 100))
             if self.colour == -1: index = 63 - index
             self.move_queue.append(Move(self.selected.index, index))
         self.selected = None
@@ -130,9 +130,9 @@ if __name__ == "__main__":
 
         pturn = [0, p1, p2][b.turn]
         if pturn.move_queue != []:
-            if pturn.move_queue[0].isValid(b):
-                b.makeMove(pturn.move_queue.pop(0))
-                outcome = b.getWinState()
+            if pturn.move_queue[0].is_valid(b):
+                b.make_move(pturn.move_queue.pop(0))
+                outcome = b.get_win_state()
             else:
                 pturn.move_queue = []
 

@@ -26,7 +26,7 @@ class Square:
         self.piece = piece
 
     @staticmethod
-    def algebraicToIndex(an):
+    def algebraic_to_index(an):
         """
         Converts from algebraic notation to an index
         :param an: str
@@ -37,17 +37,17 @@ class Square:
         return 8 * r + c
 
     @staticmethod
-    def indexToAlgebraic(i):
+    def index_to_algebraic(i):
         """
         Converts from an index to algebraic notation
         :param i: int
         :return: str
         """
-        c, r = Square.indexToCoordinate(i)
+        c, r = Square.index_to_coordinate(i)
         return LETTERS[c] + NUMBERS[::-1][r]
 
     @staticmethod
-    def indexToCoordinate(i):
+    def index_to_coordinate(i):
         """
         Converts from an index to a (col, row) coordinate
         :param i: int
@@ -56,7 +56,7 @@ class Square:
         return i % 8, i // 8
 
     @staticmethod
-    def coordinateToIndex(square):
+    def coordinate_to_index(square):
         """
         Converts from a (col, row) coordinate to an index
         :param square: (int, int)
@@ -65,33 +65,33 @@ class Square:
         c, r = square
         return c + r * 8
 
-    def hasPiece(self):
+    def has_piece(self):
         """
         Checks if square holds a piece
         :return: bool
         """
         return self.piece is not None
 
-    def hasAllyPiece(self, colour):
+    def has_ally_piece(self, colour):
         """
         Checks if square holds a piece of the same colour specified
         :param colour: int
         :return: bool
         """
-        if not self.hasPiece(): return False
+        if not self.has_piece(): return False
         return self.piece.colour == colour
 
-    def hasEnemyPiece(self, colour):
+    def has_enemy_piece(self, colour):
         """
         Checks if square holds a piece of the opposite colour specified
         :param colour: int
         :return: bool
         """
-        if not self.hasPiece(): return False
+        if not self.has_piece(): return False
         return self.piece.colour != colour
 
     def __str__(self):
-        return Square.indexToAlgebraic(self.index)
+        return Square.index_to_algebraic(self.index)
 
     def __eq__(self, s):
         if not isinstance(s, Square):
@@ -115,7 +115,7 @@ class Piece:
         # return self.printable
         return PIECES[self.type][self.colour]
 
-    def isAttacking(self, board, cur_pos, target_pos):
+    def is_attacking(self, board, cur_pos, target_pos):
         """
         Checks if a piece is attacking a square
         :param board: Board
@@ -125,82 +125,82 @@ class Piece:
         """
         if self.type == "p" and self.colour == WHITE:
             if cur_pos - target_pos == 7 or cur_pos - target_pos == 9:
-                if board.board[target_pos].hasEnemyPiece(self.colour):
+                if board.board[target_pos].has_enemy_piece(self.colour):
                     return True
         if self.type == "p" and self.colour == BLACK:
             if cur_pos - target_pos == -7 or cur_pos - target_pos == -9:
-                if board.board[target_pos].hasEnemyPiece(self.colour):
+                if board.board[target_pos].has_enemy_piece(self.colour):
                     return True
         if self.type == "n":
-            t = Square.indexToCoordinate(target_pos)
-            c = Square.indexToCoordinate(cur_pos)
+            t = Square.index_to_coordinate(target_pos)
+            c = Square.index_to_coordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 2), (1, -2), (-1, 2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)] and not board.board[
-                target_pos].hasAllyPiece(self.colour):
+                target_pos].has_ally_piece(self.colour):
                 return True
         if self.type == "b":
             for direction in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-                col, row = Square.indexToCoordinate(cur_pos)
+                col, row = Square.index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    if not Square.coordinateToIndex((col, row)) == cur_pos:
-                        if Square.coordinateToIndex((col, row)) == target_pos:
-                            if not board.board[Square.coordinateToIndex((col, row))].hasAllyPiece(self.colour):
+                    if not Square.coordinate_to_index((col, row)) == cur_pos:
+                        if Square.coordinate_to_index((col, row)) == target_pos:
+                            if not board.board[Square.coordinate_to_index((col, row))].has_ally_piece(self.colour):
                                 return True
-                        if board.board[Square.coordinateToIndex((col, row))].hasPiece():
+                        if board.board[Square.coordinate_to_index((col, row))].has_piece():
                             break
                     row += direction[0]
                     col += direction[1]
         if self.type == "r":
             for direction in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                col, row = Square.indexToCoordinate(cur_pos)
+                col, row = Square.index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    cur_checking = Square.coordinateToIndex((col, row))
+                    cur_checking = Square.coordinate_to_index((col, row))
                     if not cur_checking == cur_pos:
                         if cur_checking == target_pos:
-                            if not board.board[cur_checking].hasAllyPiece(self.colour):
+                            if not board.board[cur_checking].has_ally_piece(self.colour):
                                 return True
-                        if board.board[cur_checking].hasPiece():
+                        if board.board[cur_checking].has_piece():
                             break
                     row += direction[0]
                     col += direction[1]
         if self.type == "q":
             for direction in [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]:
-                col, row = Square.indexToCoordinate(cur_pos)
+                col, row = Square.index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    if not Square.coordinateToIndex((col, row)) == cur_pos:
-                        if Square.coordinateToIndex((col, row)) == target_pos:
-                            if not board.board[Square.coordinateToIndex((col, row))].hasAllyPiece(self.colour):
+                    if not Square.coordinate_to_index((col, row)) == cur_pos:
+                        if Square.coordinate_to_index((col, row)) == target_pos:
+                            if not board.board[Square.coordinate_to_index((col, row))].has_ally_piece(self.colour):
                                 return True
-                        if board.board[Square.coordinateToIndex((col, row))].hasPiece():
+                        if board.board[Square.coordinate_to_index((col, row))].has_piece():
                             break
                     row += direction[0]
                     col += direction[1]
         if self.type == "k":
-            t = Square.indexToCoordinate(target_pos)
-            c = Square.indexToCoordinate(cur_pos)
+            t = Square.index_to_coordinate(target_pos)
+            c = Square.index_to_coordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)] and not board.board[
-                target_pos].hasAllyPiece(self.colour):
+                target_pos].has_ally_piece(self.colour):
                 return True
             if self.colour == 1:
                 if target_pos == 62 and board.castling[0]:
-                    if not board.board[62].hasPiece() and not board.board[61].hasPiece():
+                    if not board.board[62].has_piece() and not board.board[61].has_piece():
                         return True
                 if target_pos == 28 and board.castling[1]:
-                    if not board.board[59].hasPiece() and not board.board[58].hasPiece() and not board.board[
-                        57].hasPiece():
+                    if not board.board[59].has_piece() and not board.board[58].has_piece() and not board.board[
+                        57].has_piece():
                         return True
                 if target_pos == 6 and board.castling[2]:
-                    if not board.board[6].hasPiece() and not board.board[5].hasPiece():
+                    if not board.board[6].has_piece() and not board.board[5].has_piece():
                         return True
                 if target_pos == 2 and board.castling[3]:
-                    if not board.board[1].hasPiece() and not board.board[2].hasPiece() and not board.board[
-                        3].hasPiece():
+                    if not board.board[1].has_piece() and not board.board[2].has_piece() and not board.board[
+                        3].has_piece():
                         return True
         # print(f"{self} cannot move to {Square.indexToAlgebraic(target_pos)}")
         return False
 
-    def canMove(self, board, cur_pos, target_pos):
+    def can_move(self, board, cur_pos, target_pos):
         """
         Checks if making a move is legal
         :param board: Board
@@ -214,29 +214,29 @@ class Piece:
             return False
         if self.type == "p" and self.colour == WHITE:
             if cur_pos - target_pos == 8:
-                if not board.board[target_pos].hasPiece():
+                if not board.board[target_pos].has_piece():
                     return True
             elif cur_pos - target_pos == 16 and cur_pos > 47:
-                if not board.board[target_pos].hasPiece() and not board.board[cur_pos - 8].hasPiece():
+                if not board.board[target_pos].has_piece() and not board.board[cur_pos - 8].has_piece():
                     return True
             elif cur_pos - target_pos == 7 or cur_pos - target_pos == 9:
-                if board.board[target_pos].hasEnemyPiece(self.colour):
+                if board.board[target_pos].has_enemy_piece(self.colour):
                     return True
                 elif board.en_passant.index == target_pos:
                     return True
         if self.type == "p" and self.colour == BLACK:
             if cur_pos - target_pos == -8:
-                if not board.board[target_pos].hasPiece():
+                if not board.board[target_pos].has_piece():
                     return True
             elif cur_pos - target_pos == -16 and cur_pos < 16:
-                if not board.board[target_pos].hasPiece() and not board.board[cur_pos + 8].hasPiece():
+                if not board.board[target_pos].has_piece() and not board.board[cur_pos + 8].has_piece():
                     return True
             elif cur_pos - target_pos == -7 or cur_pos - target_pos == -9:
-                if board.board[target_pos].hasEnemyPiece(self.colour):
+                if board.board[target_pos].has_enemy_piece(self.colour):
                     return True
                 elif board.en_passant.index == target_pos:
                     return True
-        return self.isAttacking(board, cur_pos, target_pos)
+        return self.is_attacking(board, cur_pos, target_pos)
 
 
 class Move:
@@ -252,14 +252,14 @@ class Move:
         self.promotion_piece = promotion_piece
 
     def __str__(self):
-        return f"{Square.indexToAlgebraic(self.current_pos)} > {Square.indexToAlgebraic(self.target_pos)}"
+        return f"{Square.index_to_algebraic(self.current_pos)} > {Square.index_to_algebraic(self.target_pos)}"
 
     def __eq__(self, move):
         if not isinstance(move, Move):
             raise TypeError("Comparing and instance of Move to a different object.")
         return move.current_pos == self.current_pos and move.target_pos == self.target_pos
 
-    def isValid(self, board):
+    def is_valid(self, board):
         """
         Checks if move is legal
         :param board: Board
@@ -267,16 +267,16 @@ class Move:
         """
         # print(board.board[self.current_pos].piece)
         try:
-            if not board.board[self.current_pos].hasPiece:
+            if not board.board[self.current_pos].has_piece:
                 return False
-            if not board.board[self.current_pos].piece.canMove(board, self.current_pos, self.target_pos):
+            if not board.board[self.current_pos].piece.can_move(board, self.current_pos, self.target_pos):
                 return False
         except AttributeError:
             print("Tried to move a piece that didn't exist")
             return False
         c = board.clone()
-        c.makeMove(self)
-        if c.isCheck(board.turn):
+        c.make_move(self)
+        if c.is_check(board.turn):
             del c
             return False
         del c
@@ -295,9 +295,9 @@ class Board:
         self.fifty_move_timer = 0  # counts to 100 halfmoves
         self.moves = 0
 
-        self.loadFEN(fen)
+        self.load_fen(fen)
 
-    def loadFEN(self, fen_to_load):
+    def load_fen(self, fen_to_load):
         """
         Loads a FEN notation onto the board
         :param fen_to_load: str
@@ -333,7 +333,7 @@ class Board:
         if fen_string[3] == "-":
             self.en_passant = Square(-1)
         else:
-            self.en_passant = Square(Square.algebraicToIndex(fen_string[3]))
+            self.en_passant = Square(Square.algebraic_to_index(fen_string[3]))
         # 50 move timer
         self.fifty_move_timer = int(fen_string[4])
         # moves
@@ -351,13 +351,13 @@ class Board:
             "+---+---+---+---+---+---+---+---+\n1 | # | # | # | # | # | # | # | # |\n  " \
             "+---+---+---+---+---+---+---+---+\n "
         for square in self.board:
-            if not square.hasPiece():
+            if not square.has_piece():
                 t = t.replace("#", " ", 1)
             else:
                 t = t.replace("#", square.piece.printable, 1)
         return t
 
-    def makeMove(self, move):
+    def make_move(self, move):
         """
         Makes a move on the board
         :param move: Move
@@ -413,43 +413,43 @@ class Board:
         self.fifty_move_timer += 1
 
         if p.type == "p": self.fifty_move_timer = 0
-        if self.isCheck(self.turn): self.fifty_move_timer = 0
+        if self.is_check(self.turn): self.fifty_move_timer = 0
 
         if p.type == "p":
-            if p.colour == WHITE and Square.indexToCoordinate(move.target_pos)[1] == 0:
+            if p.colour == WHITE and Square.index_to_coordinate(move.target_pos)[1] == 0:
                 self.board[move.target_pos].piece = Piece(
                     move.promotion_piece.upper() if move.promotion_piece.lower() != "k" else "Q")
-            if p.colour == BLACK and Square.indexToCoordinate(move.target_pos)[1] == 7:
+            if p.colour == BLACK and Square.index_to_coordinate(move.target_pos)[1] == 7:
                 self.board[move.target_pos].piece = Piece(
                     move.promotion_piece.lower() if move.promotion_piece.lower() != "k" else "1")
 
-    def getWinState(self):
+    def get_win_state(self):
         """
         Checks if game has ended (2 for not ended else result)
         :return: Int
         """
-        if len(self.getLegalMoves()) == 0:
-            if self.isCheck(self.turn):
+        if len(self.get_legal_moves()) == 0:
+            if self.is_check(self.turn):
                 return self.turn
             else:
                 return 0
         return 2
 
-    def getLegalMoves(self):
+    def get_legal_moves(self):
         """
         Gets an array of all legal moves
         :return: Moves[]
         """
         moves = []
         for square in self.board:
-            if square.hasPiece():
+            if square.has_piece():
                 for square_target in self.board:
                     move = Move(square.index, square_target.index)
-                    if move.isValid(self):
+                    if move.is_valid(self):
                         moves.append(move)
         return moves
 
-    def isCheck(self, colour):
+    def is_check(self, colour):
         """
         Checks if specified colour's king is in check
         :param colour: int
@@ -457,13 +457,13 @@ class Board:
         """
         king_pos = None
         for square in self.board:
-            if square.hasPiece():
+            if square.has_piece():
                 if square.piece.type == "k" and square.piece.colour == colour:
                     king_pos = square.index
                     break
         for square in self.board:
-            if square.hasPiece() and square.piece.colour == -colour:
-                if square.piece.isAttacking(self, square.index, king_pos):
+            if square.has_piece() and square.piece.colour == -colour:
+                if square.piece.is_attacking(self, square.index, king_pos):
                     return True
         return False
 
@@ -477,23 +477,23 @@ class Player:
         self.board = None
         self.move_queue = []
 
-    def setBoard(self, board):
+    def set_board(self, board):
         self.board = board
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
-    def addMove(self, move):
+    def add_move(self, move):
         """
         Adds a move to the move queue
         :param move: str
         :return: None
         """
         start, end = move.split(",")
-        start, end = Square.algebraicToIndex(start), Square.algebraicToIndex(end)
+        start, end = Square.algebraic_to_index(start), Square.algebraic_to_index(end)
         self.move_queue.append(Move(start, end))
 
-    def getMove(self):
+    def get_move(self):
         """
         Gets the first move in the queue if it is legal otherwise it clears the move queue
         :return: Move or None
@@ -502,7 +502,7 @@ class Player:
             return None
         else:
             move = self.move_queue.pop(0)
-            if move.isValid(self.board):
+            if move.is_valid(self.board):
                 return move
             else:
                 self.move_queue = []
@@ -518,39 +518,39 @@ class Game:
         self.board = Board()
         self.w = players.pop(randint(0, 1))
         self.b = players.pop()
-        self.w.setBoard(self.board)
-        self.b.setBoard(self.board)
+        self.w.set_board(self.board)
+        self.b.set_board(self.board)
 
-    def updateMove(self):
+    def update_move(self):
         """
         Called every time a player adds a move to their queue or a move is played
         :return: None
         """
         moved = False
         if self.board.turn == 1:
-            move = self.w.getMove()
+            move = self.w.get_move()
         else:
-            move = self.b.getMove()
+            move = self.b.get_move()
         if move is not None:
-            self.makeMove(move)
+            self.make_move(move)
             moved = True
-            result = self.board.getWinState()
+            result = self.board.get_win_state()
             if result != 2:
-                self.endGame(result)
+                self.end_game(result)
         if moved:
-            self.updateMove()
+            self.update_move()
 
-    def makeMove(self, move):
+    def make_move(self, move):
         """
         Makes move on the board and sends back the board state to each player
         :param move: Move
         :return: None
         """
-        self.board.makeMove(move)
+        self.board.make_move(move)
         print(f"[MOVED] Made move {move}")
         # TODO send move to each player
 
-    def endGame(self, result):
+    def end_game(self, result):
         """
         Ends the game and sends results to players
         :param result:
@@ -570,11 +570,11 @@ if __name__ == '__main__':
 
         m = input("--> ").split(" ")
         if len(m) == 2: m.append("q")
-        mv = Move(Square.algebraicToIndex(m[0]), Square.algebraicToIndex(m[1]), m[2])
+        mv = Move(Square.algebraic_to_index(m[0]), Square.algebraic_to_index(m[1]), m[2])
 
-        if mv.isValid(b):
-            print(b.makeMove(mv))
-            r = b.getWinState()
+        if mv.is_valid(b):
+            print(b.make_move(mv))
+            r = b.get_win_state()
 
         else:
             print(f"{mv} is not valid")
