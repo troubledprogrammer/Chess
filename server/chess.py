@@ -136,7 +136,7 @@ class Piece:
             c = Square.indexToCoordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 2), (1, -2), (-1, 2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)] and not board.board[
-                    target_pos].hasAllyPiece(self.colour):
+                target_pos].hasAllyPiece(self.colour):
                 return True
         if self.type == "b":
             for direction in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
@@ -180,7 +180,7 @@ class Piece:
             c = Square.indexToCoordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)] and not board.board[
-                    target_pos].hasAllyPiece(self.colour):
+                target_pos].hasAllyPiece(self.colour):
                 return True
             if self.colour == 1:
                 if target_pos == 62 and board.castling[0]:
@@ -188,14 +188,14 @@ class Piece:
                         return True
                 if target_pos == 28 and board.castling[1]:
                     if not board.board[59].hasPiece() and not board.board[58].hasPiece() and not board.board[
-                            57].hasPiece():
+                        57].hasPiece():
                         return True
                 if target_pos == 6 and board.castling[2]:
                     if not board.board[6].hasPiece() and not board.board[5].hasPiece():
                         return True
                 if target_pos == 2 and board.castling[3]:
                     if not board.board[1].hasPiece() and not board.board[2].hasPiece() and not board.board[
-                            3].hasPiece():
+                        3].hasPiece():
                         return True
         # print(f"{self} cannot move to {Square.indexToAlgebraic(target_pos)}")
         return False
@@ -240,14 +240,16 @@ class Piece:
 
 
 class Move:
-    def __init__(self, start_pos, target_pos):
+    def __init__(self, start_pos, target_pos, promotion_piece="q"):
         """
         Creates an instance of a move holding a start and end pos
         :param start_pos: int
         :param target_pos: int
+        :param promotion_piece: str
         """
         self.current_pos = start_pos
         self.target_pos = target_pos
+        self.promotion_piece = promotion_piece
 
     def __str__(self):
         return f"{Square.indexToAlgebraic(self.current_pos)} > {Square.indexToAlgebraic(self.target_pos)}"
@@ -413,12 +415,13 @@ class Board:
         if p.type == "p": self.fifty_move_timer = 0
         if self.isCheck(self.turn): self.fifty_move_timer = 0
 
-        # TODO promotion
         if p.type == "p":
             if p.colour == WHITE and Square.indexToCoordinate(move.target_pos)[1] == 0:
-                self.board[move.target_pos].piece = Piece("Q")
+                self.board[move.target_pos].piece = Piece(
+                    move.promotion_piece.upper() if move.promotion_piece.lower() != "k" else "Q")
             if p.colour == BLACK and Square.indexToCoordinate(move.target_pos)[1] == 7:
-                self.board[move.target_pos].piece = Piece("q")
+                self.board[move.target_pos].piece = Piece(
+                    move.promotion_piece.lower() if move.promotion_piece.lower() != "k" else "1")
 
     def getWinState(self):
         """
@@ -495,7 +498,8 @@ class Player:
         Gets the first move in the queue if it is legal otherwise it clears the move queue
         :return: Move or None
         """
-        if len(self.move_queue) == 0: return None
+        if len(self.move_queue) == 0:
+            return None
         else:
             move = self.move_queue.pop(0)
             if move.isValid(self.board):
@@ -525,7 +529,8 @@ class Game:
         moved = False
         if self.board.turn == 1:
             move = self.w.getMove()
-        else: move = self.b.getMove()
+        else:
+            move = self.b.getMove()
         if move is not None:
             self.makeMove(move)
             moved = True
@@ -556,7 +561,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    b = Board()
+    b = Board(fen="8/6P1/8/8/8/k7/8/7K w - - 0 1")
     r = 2
 
     while r == 2:
@@ -564,7 +569,8 @@ if __name__ == '__main__':
         print(b.turn)
 
         m = input("--> ").split(" ")
-        mv = Move(Square.algebraicToIndex(m[0]), Square.algebraicToIndex(m[1]))
+        if len(m) == 2: m.append("q")
+        mv = Move(Square.algebraicToIndex(m[0]), Square.algebraicToIndex(m[1]), m[2])
 
         if mv.isValid(b):
             print(b.makeMove(mv))
@@ -579,4 +585,3 @@ if __name__ == "__main__":
     p1 = Player("t1")
     p2 = Player("t2")
     game = Game([p1, p2])
-

@@ -36,9 +36,25 @@ class Board:
         self.position = fenToPos(position)
 
     def draw(self):
+        # board
         self.display.blit(self.board_image, (0, 0))
 
+        # pieces
+        self._draw_pieces()
 
+        # decorations
+        self._draw_decorations()
+
+    def _draw_pieces(self):
+        square_size = WINDOW_SIZE//8
+        for index, piece in enumerate(self.position):
+            if piece is not None:
+                y, x = divmod(index, 8)
+                xpos, ypos = x*square_size, y*square_size
+                self.display.blit(self.piece_images[piece], (xpos, ypos))
+
+    def _draw_decorations(self):
+        pass
 
 
 if __name__ == "__main__":
