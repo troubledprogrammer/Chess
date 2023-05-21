@@ -25,7 +25,8 @@ class Window:
         self.board = Board(self)
 
         # chat
-        self.chat = Chat(self)
+        self.name = "MilesWij"
+        self.chat = Chat(self, self.name)
 
     def update(self):
         events = pg.event.get()
