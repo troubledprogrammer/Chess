@@ -1,4 +1,24 @@
+# --------------- Constants --------------
+# pieces
 WHITE_PIECE = 1
 BLACK_PIECE = -1
 
-WINDOW_SIZE = 800
+# --------------- Settings ---------------
+# layout
+BOARD_SIZE = 600
+INFO_BAR_SIZE_X, INFO_BAR_SIZE_Y = BOARD_SIZE, 60
+MOVE_HISTORY_SIZE_X, MOVE_HISTORY_SIZE_Y = 400, 475
+CHAT_SIZE_X, CHAT_SIZE_Y = MOVE_HISTORY_SIZE_X, BOARD_SIZE + 2*INFO_BAR_SIZE_Y - MOVE_HISTORY_SIZE_Y
+WINDOW_SIZE_X, WINDOW_SIZE_Y = BOARD_SIZE+MOVE_HISTORY_SIZE_X, BOARD_SIZE + 2*INFO_BAR_SIZE_Y # x > y always
+
+# chat
+CHAT_FONT = "Nunito"
+CHAT_FONT_SIZE = 18
+CHAT_BG_COLOUR = "#000824"
+CHAT_COLOUR = "white"
+CHAT_PADDING = 10
+CHAT_INPUT_TEXT = "Send a message..."
+
+# style
+BOARD_STYLE = "wood"
+PIECE_STYLE = "default"
