@@ -19,6 +19,9 @@ CHAT_COLOUR = "white"
 CHAT_PADDING = 10
 CHAT_INPUT_TEXT = "Send a message..."
 
+# clock
+CLOCK_PADDING = 10
+
 # style
 BOARD_STYLE = "wood"
 PIECE_STYLE = "default"

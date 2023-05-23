@@ -1,0 +1,27 @@
+PACKET:
+- 1 bit: CONTENTS ID:
+   - 1: MOVE
+   - 2: GAME END
+   - 3: CHAT MESSAGE
+
+
+MOVE PACKET:
+- 4 bits: contents id (Literal: 1)
+- 12 bits: move
+- 2 bits: optional castling piece
+- TOTAL 18 BITS aka 3 BYTES
+
+GAME END PACKET:
+- 4 bits: contents id (Literal: 2)
+- 2 bits: result
+- 4 bits: reason
+- TOTAL 10 BITS aka 2 BYTES
+
+CHAT MESSAGE PACKET:
+- 4 bits: contents id (Literal: 3)
+- remaining space: message
+- TOTAL ___
+
+
+
+1:46:30
