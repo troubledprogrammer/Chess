@@ -1,5 +1,4 @@
 from copy import deepcopy
-from random import randint
 
 LETTERS = "abcdefgh"
 NUMBERS = "12345678"
@@ -471,95 +470,6 @@ class Board:
         return deepcopy(self)
 
 
-class Player:
-    def __init__(self, name):
-        self.name = name
-        self.board = None
-        self.move_queue = []
-
-    def set_board(self, board):
-        self.board = board
-
-    def get_name(self):
-        return self.name
-
-    def add_move(self, move):
-        """
-        Adds a move to the move queue
-        :param move: str
-        :return: None
-        """
-        start, end = move.split(",")
-        start, end = Square.algebraic_to_index(start), Square.algebraic_to_index(end)
-        self.move_queue.append(Move(start, end))
-
-    def get_move(self):
-        """
-        Gets the first move in the queue if it is legal otherwise it clears the move queue
-        :return: Move or None
-        """
-        if len(self.move_queue) == 0:
-            return None
-        else:
-            move = self.move_queue.pop(0)
-            if move.is_valid(self.board):
-                return move
-            else:
-                self.move_queue = []
-                return None
-
-
-class Game:
-    def __init__(self, players):
-        """
-        Starts a game with given players
-        :param players: Player[]
-        """
-        self.board = Board()
-        self.w = players.pop(randint(0, 1))
-        self.b = players.pop()
-        self.w.set_board(self.board)
-        self.b.set_board(self.board)
-
-    def update_move(self):
-        """
-        Called every time a player adds a move to their queue or a move is played
-        :return: None
-        """
-        moved = False
-        if self.board.turn == 1:
-            move = self.w.get_move()
-        else:
-            move = self.b.get_move()
-        if move is not None:
-            self.make_move(move)
-            moved = True
-            result = self.board.get_win_state()
-            if result != 2:
-                self.end_game(result)
-        if moved:
-            self.update_move()
-
-    def make_move(self, move):
-        """
-        Makes move on the board and sends back the board state to each player
-        :param move: Move
-        :return: None
-        """
-        self.board.make_move(move)
-        print(f"[MOVED] Made move {move}")
-        # TODO send move to each player
-
-    def end_game(self, result):
-        """
-        Ends the game and sends results to players
-        :param result:
-        :return:
-        """
-        print("Game ended with result:", result)
-        print(self.board)
-
-
 if __name__ == '__main__':
     b = Board(fen="8/6P1/8/8/8/k7/8/7K w - - 0 1")
     r = 2
@@ -580,8 +490,3 @@ if __name__ == '__main__':
             print(f"{mv} is not valid")
 
     print(r)
-
-if __name__ == "__main__":
-    p1 = Player("t1")
-    p2 = Player("t2")
-    game = Game([p1, p2])

@@ -4,6 +4,7 @@ File containing the board section of the window
 import pygame as pg
 from constants import *
 
+
 def fen_to_pos(fen):
     rows = fen.split(" ")[0].split("/")
     res = []
@@ -15,6 +16,7 @@ def fen_to_pos(fen):
                 res.extend([None]*int(c))
     return res
 
+
 class Board:
     """
     Class for board part of the clinet UI
@@ -24,10 +26,12 @@ class Board:
         self.window = window
         self.display = self.window.display
 
-        # textures
+        # textures - board
         piece_size = BOARD_SIZE // 8
         self.board_image = pg.image.load(f"assets/board/{BOARD_STYLE}/board.png")
         self.board_image = pg.transform.smoothscale(self.board_image, (BOARD_SIZE, BOARD_SIZE))
+
+        # textures - pieces
         self.piece_images = {}
         for c in "pnbrqk":
             w = pg.image.load(f"assets/pieces/{PIECE_STYLE}/w{c}.png")
@@ -36,6 +40,14 @@ class Board:
             b = pg.transform.smoothscale(b, (piece_size, piece_size))
             self.piece_images[c.upper()] = w
             self.piece_images[c] = b
+
+        # textures - valid move
+        rgba = VALID_MOVE_RGBA
+        pos = BOARD_SIZE // 16, BOARD_SIZE // 16
+        self.valid_move_image = pg.Surface((BOARD_SIZE//8, BOARD_SIZE//8), pg.SRCALPHA)
+        pg.draw.circle(self.valid_move_image, rgba, pos, BOARD_SIZE//48, 0)
+        self.valid_capture_image = pg.Surface((BOARD_SIZE//8, BOARD_SIZE//8), pg.SRCALPHA)
+        pg.draw.circle(self.valid_move_image, rgba, pos, BOARD_SIZE//24, BOARD_SIZE//64)
 
         # position data
         self.position = fen_to_pos(position)
@@ -53,6 +65,9 @@ class Board:
         # decorations
         self._draw_decorations()
 
+        # valid moves
+        self._draw_valid_moves()
+
     def _draw_pieces(self):
         square_size = BOARD_SIZE//8
         for index, piece in enumerate(self.position):
@@ -62,6 +77,9 @@ class Board:
                 self.display.blit(self.piece_images[piece], (xpos, ypos))
 
     def _draw_decorations(self):
+        pass
+
+    def _draw_valid_moves(self):
         pass
 
 

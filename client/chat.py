@@ -54,10 +54,8 @@ class Chat:
                     if self.pos[0] <= mouse_x <= WINDOW_SIZE_X and\
                             self.pos[1] <= mouse_y <= WINDOW_SIZE_Y:
                         self.focused = True
-                        print("focused")
                     else:
                         self.focused = False
-                        print("unfocused")
             if self.focused:
                 if event.type == pg.KEYDOWN and event.key not in [pg.K_TAB]:
                     if event.key == pg.K_BACKSPACE:

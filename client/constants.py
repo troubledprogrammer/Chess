@@ -25,3 +25,6 @@ CLOCK_PADDING = 10
 # style
 BOARD_STYLE = "wood"
 PIECE_STYLE = "default"
+
+# valid squares
+VALID_MOVE_RGBA = 255, 160, 36, 127

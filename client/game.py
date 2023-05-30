@@ -7,7 +7,8 @@ from constants import *
 from board import Board
 from chat import Chat
 
-class Window:
+
+class Game:
     """
     Class for the client UI
     """
@@ -58,5 +59,5 @@ class Window:
 
 
 if __name__ == "__main__":
-    win = Window()
+    win = Game()
     win.run()

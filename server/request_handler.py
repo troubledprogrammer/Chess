@@ -1,7 +1,5 @@
 import socket
 from _thread import *
-import time
-from chess import Move, Board
 
 
 class Server:
@@ -46,6 +44,7 @@ class Server:
             print("[SERVER][CONNECTION] New connection to:", addr)
 
             self.authenticate(conn, addr)
+
 
 if __name__ == "__main__":
     s = Server()
