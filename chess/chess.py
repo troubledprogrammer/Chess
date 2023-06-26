@@ -1,17 +1,7 @@
 from copy import deepcopy
 
-LETTERS = "abcdefgh"
-NUMBERS = "12345678"
-PIECES = {
-    "p": ["", "\u2659", "\u265F"],
-    "n": ["", "\u2658", "\u265E"],
-    "b": ["", "\u2657", "\u265D"],
-    "r": ["", "\u2656", "\u265C"],
-    "q": ["", "\u2655", "\u265B"],
-    "k": ["", "\u2654", "\u265A"],
-}
-WHITE = 1
-BLACK = -1
+from chess.constants import *
+from chess.conversions import *
 
 
 class Square:
@@ -23,46 +13,6 @@ class Square:
         """
         self.index = pos
         self.piece = piece
-
-    @staticmethod
-    def algebraic_to_index(an):
-        """
-        Converts from algebraic notation to an index
-        :param an: str
-        :return: int
-        """
-        c = LETTERS.index(an[0])
-        r = NUMBERS[::-1].index(an[1])
-        return 8 * r + c
-
-    @staticmethod
-    def index_to_algebraic(i):
-        """
-        Converts from an index to algebraic notation
-        :param i: int
-        :return: str
-        """
-        c, r = Square.index_to_coordinate(i)
-        return LETTERS[c] + NUMBERS[::-1][r]
-
-    @staticmethod
-    def index_to_coordinate(i):
-        """
-        Converts from an index to a (col, row) coordinate
-        :param i: int
-        :return: (int, int)
-        """
-        return i % 8, i // 8
-
-    @staticmethod
-    def coordinate_to_index(square):
-        """
-        Converts from a (col, row) coordinate to an index
-        :param square: (int, int)
-        :return: int
-        """
-        c, r = square
-        return c + r * 8
 
     def has_piece(self):
         """
@@ -131,29 +81,29 @@ class Piece:
                 if board.board[target_pos].has_enemy_piece(self.colour):
                     return True
         if self.type == "n":
-            t = Square.index_to_coordinate(target_pos)
-            c = Square.index_to_coordinate(cur_pos)
+            t = index_to_coordinate(target_pos)
+            c = index_to_coordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 2), (1, -2), (-1, 2), (-1, -2), (2, 1), (2, -1), (-2, 1), (-2, -1)] and not board.board[
-                target_pos].has_ally_piece(self.colour):
+                    target_pos].has_ally_piece(self.colour):
                 return True
         if self.type == "b":
             for direction in [(1, 1), (1, -1), (-1, 1), (-1, -1)]:
-                col, row = Square.index_to_coordinate(cur_pos)
+                col, row = index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    if not Square.coordinate_to_index((col, row)) == cur_pos:
-                        if Square.coordinate_to_index((col, row)) == target_pos:
-                            if not board.board[Square.coordinate_to_index((col, row))].has_ally_piece(self.colour):
+                    if not coordinate_to_index((col, row)) == cur_pos:
+                        if coordinate_to_index((col, row)) == target_pos:
+                            if not board.board[coordinate_to_index((col, row))].has_ally_piece(self.colour):
                                 return True
-                        if board.board[Square.coordinate_to_index((col, row))].has_piece():
+                        if board.board[coordinate_to_index((col, row))].has_piece():
                             break
                     row += direction[0]
                     col += direction[1]
         if self.type == "r":
             for direction in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
-                col, row = Square.index_to_coordinate(cur_pos)
+                col, row = index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    cur_checking = Square.coordinate_to_index((col, row))
+                    cur_checking = coordinate_to_index((col, row))
                     if not cur_checking == cur_pos:
                         if cur_checking == target_pos:
                             if not board.board[cur_checking].has_ally_piece(self.colour):
@@ -164,22 +114,22 @@ class Piece:
                     col += direction[1]
         if self.type == "q":
             for direction in [(1, 1), (1, -1), (-1, 1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)]:
-                col, row = Square.index_to_coordinate(cur_pos)
+                col, row = index_to_coordinate(cur_pos)
                 while 0 <= row <= 7 and 0 <= col <= 7:
-                    if not Square.coordinate_to_index((col, row)) == cur_pos:
-                        if Square.coordinate_to_index((col, row)) == target_pos:
-                            if not board.board[Square.coordinate_to_index((col, row))].has_ally_piece(self.colour):
+                    if not coordinate_to_index((col, row)) == cur_pos:
+                        if coordinate_to_index((col, row)) == target_pos:
+                            if not board.board[coordinate_to_index((col, row))].has_ally_piece(self.colour):
                                 return True
-                        if board.board[Square.coordinate_to_index((col, row))].has_piece():
+                        if board.board[coordinate_to_index((col, row))].has_piece():
                             break
                     row += direction[0]
                     col += direction[1]
         if self.type == "k":
-            t = Square.index_to_coordinate(target_pos)
-            c = Square.index_to_coordinate(cur_pos)
+            t = index_to_coordinate(target_pos)
+            c = index_to_coordinate(cur_pos)
             o = t[0] - c[0], t[1] - c[1]
             if o in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)] and not board.board[
-                target_pos].has_ally_piece(self.colour):
+                    target_pos].has_ally_piece(self.colour):
                 return True
             if self.colour == 1:
                 if target_pos == 62 and board.castling[0]:
@@ -187,14 +137,14 @@ class Piece:
                         return True
                 if target_pos == 28 and board.castling[1]:
                     if not board.board[59].has_piece() and not board.board[58].has_piece() and not board.board[
-                        57].has_piece():
+                            57].has_piece():
                         return True
                 if target_pos == 6 and board.castling[2]:
                     if not board.board[6].has_piece() and not board.board[5].has_piece():
                         return True
                 if target_pos == 2 and board.castling[3]:
                     if not board.board[1].has_piece() and not board.board[2].has_piece() and not board.board[
-                        3].has_piece():
+                            3].has_piece():
                         return True
         # print(f"{self} cannot move to {Square.indexToAlgebraic(target_pos)}")
         return False
@@ -251,7 +201,7 @@ class Move:
         self.promotion_piece = promotion_piece
 
     def __str__(self):
-        return f"{Square.index_to_algebraic(self.current_pos)} > {Square.index_to_algebraic(self.target_pos)}"
+        return f"{index_to_algebraic(self.current_pos)} > {index_to_algebraic(self.target_pos)}"
 
     def __eq__(self, move):
         if not isinstance(move, Move):
@@ -318,8 +268,8 @@ class Board:
                     index += 1
         self.board = pieces
         # turn
-        turn = 1
-        if fen_string[1] == "b": turn = -1
+        turn = WHITE
+        if fen_string[1] == "b": turn = BLACK
         self.turn = turn
         # castling
         self.castling = [False] * 4
@@ -332,7 +282,7 @@ class Board:
         if fen_string[3] == "-":
             self.en_passant = Square(-1)
         else:
-            self.en_passant = Square(Square.algebraic_to_index(fen_string[3]))
+            self.en_passant = Square(algebraic_to_index(fen_string[3]))
         # 50 move timer
         self.fifty_move_timer = int(fen_string[4])
         # moves
@@ -415,10 +365,10 @@ class Board:
         if self.is_check(self.turn): self.fifty_move_timer = 0
 
         if p.type == "p":
-            if p.colour == WHITE and Square.index_to_coordinate(move.target_pos)[1] == 0:
+            if p.colour == WHITE and index_to_coordinate(move.target_pos)[1] == 0:
                 self.board[move.target_pos].piece = Piece(
                     move.promotion_piece.upper() if move.promotion_piece.lower() != "k" else "Q")
-            if p.colour == BLACK and Square.index_to_coordinate(move.target_pos)[1] == 7:
+            if p.colour == BLACK and index_to_coordinate(move.target_pos)[1] == 7:
                 self.board[move.target_pos].piece = Piece(
                     move.promotion_piece.lower() if move.promotion_piece.lower() != "k" else "1")
 
@@ -480,7 +430,7 @@ if __name__ == '__main__':
 
         m = input("--> ").split(" ")
         if len(m) == 2: m.append("q")
-        mv = Move(Square.algebraic_to_index(m[0]), Square.algebraic_to_index(m[1]), m[2])
+        mv = Move(algebraic_to_index(m[0]), algebraic_to_index(m[1]), m[2])
 
         if mv.is_valid(b):
             print(b.make_move(mv))

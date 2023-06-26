@@ -27,4 +27,7 @@ BOARD_STYLE = "wood"
 PIECE_STYLE = "default"
 
 # valid squares
-VALID_MOVE_RGBA = 255, 160, 36, 127
+VALID_MOVE_RGBA = 25, 25, 25, 50
+
+# highlighted squares
+HIGHLIGHTED_SQUARE_RGBA = 255, 0, 0, 127

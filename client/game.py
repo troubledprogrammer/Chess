@@ -7,6 +7,8 @@ from constants import *
 from board import Board
 from chat import Chat
 
+import chess.chess as _chess
+
 
 class Game:
     """
@@ -23,11 +25,26 @@ class Game:
         pg.display.set_icon(icon)
 
         # board
+        self.position = _chess.Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
         self.board = Board(self)
 
         # chat
         self.name = "MilesWij"
         self.chat = Chat(self, self.name)
+
+        # time
+        self.time = pg.time.Clock()
+
+    def make_move(self, move):
+        """
+        Sends a move to server and temporarily updates pos
+        :param move: Move
+        :return: None
+        """
+        # TODO IMPLEMENT
+        print(move)
+        if move.is_valid(self.position):
+            self.position.make_move(move)
 
     def update(self):
         events = pg.event.get()
@@ -40,6 +57,8 @@ class Game:
 
         self.board.update(events)
         self.chat.update(events)
+
+        #print(1000/self.time.tick())
 
     def draw(self):
         self.display.fill((0, 0, 0))
