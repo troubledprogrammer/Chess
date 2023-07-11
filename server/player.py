@@ -1,4 +1,4 @@
-from chess.chess import Square, Move
+from chess.game import Square, Move
 
 
 class Player:

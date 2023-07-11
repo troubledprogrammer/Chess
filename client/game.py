@@ -7,7 +7,7 @@ from constants import *
 from board import Board
 from chat import Chat
 
-import chess.chess as _chess
+import chess.game as _chess
 
 
 class Game:

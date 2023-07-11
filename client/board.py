@@ -4,7 +4,7 @@ File containing the board section of the window
 import pygame as pg
 from constants import *
 
-import chess.chess as _chess
+import chess.game as _chess
 from chess.constants import *
 from chess.conversions import coordinate_to_index
 
@@ -98,7 +98,7 @@ class Board:
 
         i = mouse_pos_to_index()
         if i is None: return
-        s = self.position.board[i]
+        s = self.position.position[i]
         if s.has_piece():
             self.held_piece_index = i
             self.held_piece_img = self.piece_images[s.piece.type][s.piece.colour]
@@ -108,7 +108,7 @@ class Board:
                     # draw possible move
                     y, x = divmod(move.target_pos, 8)
                     pos = x * self.SQUARE_SIZE, y * self.SQUARE_SIZE + INFO_BAR_SIZE_Y
-                    img = self.valid_capture_image if self.position.board[move.target_pos].has_piece() else self.valid_move_image
+                    img = self.valid_capture_image if self.position.position[move.target_pos].has_piece() else self.valid_move_image
                     self.valid_move_sprites.append((img, pos))
 
     def _on_right_mouse_down(self):
@@ -146,7 +146,7 @@ class Board:
         self._draw_held()
 
     def _draw_pieces(self):
-        for index, square in enumerate(self.position.board):
+        for index, square in enumerate(self.position.position):
             if square.has_piece() and index != self.held_piece_index:
                 y, x = divmod(index, 8)
                 xpos, ypos = x * self.SQUARE_SIZE, y * self.SQUARE_SIZE + INFO_BAR_SIZE_Y

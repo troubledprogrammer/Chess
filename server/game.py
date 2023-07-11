@@ -1,4 +1,4 @@
-from chess.chess import Board
+from chess.game import Board
 from random import randint
 
 

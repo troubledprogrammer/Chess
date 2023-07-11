@@ -1,4 +1,4 @@
-from chess.constants import LETTERS, NUMBERS
+from constants import LETTERS, NUMBERS
 
 
 def algebraic_to_index(an):

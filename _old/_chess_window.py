@@ -48,7 +48,7 @@ class Window:
         self.move_queue = []
 
     def drawPieces(self):
-        for square in self.game.board:
+        for square in self.game.position:
             if square.has_piece():
                 if self.selected == None or square.index != self.selected.index:
                     i = square.index
@@ -61,12 +61,12 @@ class Window:
         x, y = pg.mouse.get_pos()
         index = Square.coordinate_to_index((x // 100, y // 100))
         if self.colour == -1: index = 63 - index
-        s = self.game.board[index]
+        s = self.game.position[index]
         if s.has_piece():
             self.selected = HeldPiece(index, self.display, self.piece_images[s.piece.type][s.piece.colour])
 
     def onLeftMouseUp(self):
-        if self.selected != None and self.game.board[self.selected.index].piece.colour == self.colour:
+        if self.selected != None and self.game.position[self.selected.index].piece.colour == self.colour:
             x, y = pg.mouse.get_pos()
             index = Square.coordinate_to_index((x // 100, y // 100))
             if self.colour == -1: index = 63 - index
